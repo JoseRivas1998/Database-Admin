@@ -64,7 +64,7 @@ public class LogInFrame extends JFrame {
 			ProgramManager.database = databaseTA.getText();
 			if(ProgramManager.getConnection() != null) {
 				JOptionPane.showMessageDialog(this, "Database Connected Successfully", "Conntected", JOptionPane.INFORMATION_MESSAGE);
-				new MainFrame(this);
+				new TableSelectFrame(this);
 				dispose();
 			} else {
 				JOptionPane.showMessageDialog(this, "Unable to log in", "Error", JOptionPane.ERROR_MESSAGE);
