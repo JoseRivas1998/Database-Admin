@@ -2,6 +2,7 @@ package com.tcg.dbadmin;
 
 import java.awt.*;
 import java.sql.*;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -23,9 +24,19 @@ public class MainFrame extends JFrame {
 	JButton changeTableButton;
 	
 	JTabbedPane tabbedView;
+	
 	JTable browseTable;
 	JScrollPane browseScrollPane;
 
+	JPanel editPanel;
+	JPanel editButtons;
+	JPanel editContentPanel;
+	ResultSet editResultSet;
+	ArrayList<JLabel> editLabels;
+	ArrayList<JTextArea> editAreas;
+	JButton editPrev;
+	JButton editNext;
+	
 	public MainFrame(JFrame caller) {
 		connect();
 		
@@ -55,7 +66,51 @@ public class MainFrame extends JFrame {
 		browseScrollPane.setViewportView(browseTable);
 		setTableToDefault();
 		
+		editLabels = new ArrayList<>();
+		editAreas = new ArrayList<>();
+		initEdit();
+
+		editPrev = new JButton("<");
+		editNext = new JButton(">");
+		
+		editButtons = new JPanel();
+		editButtons.setLayout(new FlowLayout());
+		editButtons.add(editPrev);
+		editButtons.add(editNext);
+		
+		editPrev.addActionListener(e -> {
+			try {
+				if(editResultSet.isFirst()) {
+					editResultSet.last();
+				} else {
+					editResultSet.previous();
+				}
+				retrieveEditRowInformation();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+		
+		editNext.addActionListener(e -> {
+			try {
+				if(editResultSet.isLast()) {
+					editResultSet.first();
+				} else {
+					editResultSet.next();
+				}
+				retrieveEditRowInformation();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+		
+		editPanel = new JPanel();
+		editPanel.setLayout(new BorderLayout());
+		editPanel.add(editContentPanel, BorderLayout.CENTER);
+		editPanel.add(editButtons, BorderLayout.SOUTH);
+		
 		tabbedView.addTab("Browse", browseScrollPane);
+		tabbedView.addTab("Edit", editPanel);
 
 		getContentPane().add(top, BorderLayout.NORTH);
 		getContentPane().add(tabbedView, BorderLayout.CENTER);
@@ -94,6 +149,58 @@ public class MainFrame extends JFrame {
 			sqlCon = ProgramManager.getConnection();
 			sqlState = sqlCon.createStatement();
 		} catch(Exception e){}
+	}
+	
+	private void initEdit() {
+		String sql = String.format("SELECT * FROM %s", ProgramManager.getTable());
+		boolean retry = false;
+		do {
+			try {
+				editResultSet = sqlState.executeQuery(sql);
+				editResultSet.first();
+			} catch (Exception e) {
+				if(e instanceof CommunicationsException) {
+					connect();
+					retry = true;
+				} else {
+					e.printStackTrace();
+				}
+			}
+		} while(retry);
+		retrieveEditRowInformation();
+	}
+	
+	private void retrieveEditRowInformation() {
+		int numColumns = 0;
+		ResultSetMetaData rsmd = null;
+		editLabels.clear();
+		editAreas.clear();
+		try {
+			rsmd = editResultSet.getMetaData();
+			numColumns = rsmd.getColumnCount();
+			for(int currentCol = 1; currentCol < numColumns + 1; currentCol++) {
+				String colLabel = rsmd.getColumnLabel(currentCol);
+				String content = editResultSet.getString(colLabel);
+				editLabels.add(new JLabel(colLabel));
+				JTextArea area = new JTextArea();
+				area.setText(content);
+				editAreas.add(area);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+		editContentPanel = new JPanel();
+		editContentPanel.setLayout(new GridLayout(numColumns + 1, 1));
+		for(int i = 0; i < numColumns; i++) {
+			JPanel p = new JPanel();
+			p.setLayout(new FlowLayout());
+			p.add(editLabels.get(i));
+			p.add(editAreas.get(i));
+			editContentPanel.add(p);
+		}
+		editContentPanel.repaint();
+		repaint();
 	}
 	
 }
