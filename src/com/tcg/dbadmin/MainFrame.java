@@ -53,6 +53,7 @@ public class MainFrame extends JFrame {
 			ProgramManager.currentTableIndex = tableComboBox.getSelectedIndex();
 			updateTitle();
 			setTableToDefault();
+			initEdit();
 		});
 		
 		top.add(changeTableLabel);
@@ -65,10 +66,10 @@ public class MainFrame extends JFrame {
 		browseTable = new JTable();
 		browseScrollPane.setViewportView(browseTable);
 		setTableToDefault();
-		
+
+		editContentPanel = new JPanel();
 		editLabels = new ArrayList<>();
 		editAreas = new ArrayList<>();
-		initEdit();
 
 		editPrev = new JButton("<");
 		editNext = new JButton(">");
@@ -108,6 +109,7 @@ public class MainFrame extends JFrame {
 		editPanel.setLayout(new BorderLayout());
 		editPanel.add(editContentPanel, BorderLayout.CENTER);
 		editPanel.add(editButtons, BorderLayout.SOUTH);
+		initEdit();
 		
 		tabbedView.addTab("Browse", browseScrollPane);
 		tabbedView.addTab("Edit", editPanel);
@@ -178,6 +180,8 @@ public class MainFrame extends JFrame {
 		try {
 			rsmd = editResultSet.getMetaData();
 			numColumns = rsmd.getColumnCount();
+			editLabels.clear();
+			editAreas.clear();
 			for(int currentCol = 1; currentCol < numColumns + 1; currentCol++) {
 				String colLabel = rsmd.getColumnLabel(currentCol);
 				String content = editResultSet.getString(colLabel);
@@ -190,8 +194,9 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 			return;
 		}
-		editContentPanel = new JPanel();
 		editContentPanel.setLayout(new GridLayout(numColumns + 1, 1));
+		editContentPanel.removeAll();
+		editPanel.remove(editContentPanel);
 		for(int i = 0; i < numColumns; i++) {
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout());
@@ -200,6 +205,7 @@ public class MainFrame extends JFrame {
 			editContentPanel.add(p);
 		}
 		editContentPanel.repaint();
+		editPanel.add(editContentPanel, BorderLayout.CENTER);
 		repaint();
 	}
 	
