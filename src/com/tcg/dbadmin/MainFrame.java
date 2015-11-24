@@ -28,6 +28,7 @@ public class MainFrame extends JFrame {
 	JTable browseTable;
 	JScrollPane browseScrollPane;
 
+	Statement editSqlState;
 	JPanel editPanel;
 	JPanel editButtons;
 	JPanel editContentPanel;
@@ -38,6 +39,15 @@ public class MainFrame extends JFrame {
 	JButton editNext;
 	JButton editUpdate;
 	JButton editDeleteRow;
+
+	Statement insertSqlState;
+	JPanel insertPanel;
+	JPanel insertButtons;
+	JPanel insertContentPanel;
+	ResultSet insertResultSet;
+	ArrayList<JLabel> insertLabels;
+	ArrayList<JTextArea> insertAreas;
+	JButton insertButton;
 	
 	public MainFrame(JFrame caller) {
 		connect();
@@ -48,9 +58,11 @@ public class MainFrame extends JFrame {
 		
 		initTablePane();
 		initEditPane();
+		initInsertPane();
 		
 		tabbedView.addTab("Browse", browseScrollPane);
 		tabbedView.addTab("Edit", editPanel);
+		tabbedView.addTab("Insert", insertPanel);
 
 		getContentPane().add(top, BorderLayout.NORTH);
 		getContentPane().add(tabbedView, BorderLayout.CENTER);
@@ -79,6 +91,8 @@ public class MainFrame extends JFrame {
 			setTableToDefault();
 			editContentPanel.removeAll();
 			initEdit();
+			insertContentPanel.removeAll();
+			initInsert();
 		});
 		
 		top.add(changeTableLabel);
@@ -173,7 +187,7 @@ public class MainFrame extends JFrame {
 				boolean retry = false;
 				do {
 					try {
-						sqlState.executeUpdate(sql);
+						editSqlState.executeUpdate(sql);
 						JOptionPane.showMessageDialog(this, "Updated Row", "Success", JOptionPane.INFORMATION_MESSAGE);
 					} catch (Exception e2) {
 						if(e2 instanceof CommunicationsException) {
@@ -209,7 +223,7 @@ public class MainFrame extends JFrame {
 					boolean retry = false;
 					do {
 						try {
-							sqlState.executeUpdate(sql);
+							editSqlState.executeUpdate(sql);
 							JOptionPane.showMessageDialog(this, "Deleted Row", "Success", JOptionPane.INFORMATION_MESSAGE);
 						} catch (Exception e2) {
 							if(e2 instanceof CommunicationsException) {
@@ -226,6 +240,7 @@ public class MainFrame extends JFrame {
 				}
 				setTableToDefault();
 				initEdit();
+				initInsert();
 			}
 		});
 		
@@ -236,6 +251,77 @@ public class MainFrame extends JFrame {
 		initEdit();
 	}
 
+	private void initInsertPane() {
+		
+		insertContentPanel = new JPanel();
+		insertLabels = new ArrayList<>();
+		insertAreas = new ArrayList<>();
+		
+		insertButton = new JButton("Insert");
+		
+		insertButton.addActionListener(e -> {
+			ArrayList<String> col, val;
+			col = new ArrayList<>();
+			val = new ArrayList<>();
+			for(int i = 0; i < insertAreas.size(); i++) {
+				if(!insertAreas.get(i).getText().isEmpty()) {
+					col.add(insertLabels.get(i).getText());
+					val.add(insertAreas.get(i).getText());
+				}
+			}
+			String sql = String.format("INSERT INTO %s (", ProgramManager.getTable());
+			for(int i = 0; i < col.size(); i++) {
+				if(i + 1 >= col.size()) {
+					sql += String.format("%s", col.get(i));
+				} else {
+					sql += String.format("%s, ", col.get(i));
+				}
+			}
+			sql += ") VALUES (";
+			for(int i = 0; i < val.size(); i++) {
+				if(i + 1 >= val.size()) {
+					sql += String.format("'%s'", val.get(i));
+				} else {
+					sql += String.format("'%s', ", val.get(i));
+				}
+			}
+			sql += ")";
+			if(JOptionPane.showConfirmDialog(this, String.format("Execute following query: %s?", sql), "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				boolean retry = false;
+				do {
+					try {
+						insertSqlState.executeUpdate(sql);
+						JOptionPane.showMessageDialog(this, "Row Inserted", "Success", JOptionPane.INFORMATION_MESSAGE);
+					} catch (Exception e2) {
+						if(e2 instanceof CommunicationsException) {
+							connect();
+							retry = true;
+						} else {
+							JOptionPane.showMessageDialog(this, e2.getMessage(), e2.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+							e2.printStackTrace();
+						}
+					}
+				} while(retry);
+			}
+			setTableToDefault();
+			initEdit();
+			initInsert();
+		});
+		
+		insertButtons = new JPanel();
+		insertButtons.setLayout(new FlowLayout());
+		
+		insertButtons.add(insertButton);
+		
+		insertPanel = new JPanel();
+		insertPanel.setLayout(new BorderLayout());
+		insertPanel.add(insertContentPanel, BorderLayout.CENTER);
+		insertPanel.add(insertButtons, BorderLayout.SOUTH);
+		
+		initInsert();
+		
+	}
+	
 	private void updateTitle() {
 		setTitle(ProgramManager.host + "/" + ProgramManager.database + ": " + ProgramManager.getTable() + " | Database Admin");
 	}
@@ -262,6 +348,8 @@ public class MainFrame extends JFrame {
 		try {
 			sqlCon = ProgramManager.getConnection();
 			sqlState = sqlCon.createStatement();
+			editSqlState = sqlCon.createStatement();
+			insertSqlState = sqlCon.createStatement();
 		} catch(Exception e){}
 	}
 	
@@ -270,7 +358,7 @@ public class MainFrame extends JFrame {
 		boolean retry = false;
 		do {
 			try {
-				editResultSet = sqlState.executeQuery(sql);
+				editResultSet = editSqlState.executeQuery(sql);
 				editResultSet.first();
 			} catch (Exception e) {
 				if(e instanceof CommunicationsException) {
@@ -298,7 +386,7 @@ public class MainFrame extends JFrame {
 				String colLabel = rsmd.getColumnLabel(currentCol);
 				String content = editResultSet.getString(colLabel);
 				editLabels.add(new JLabel(colLabel));
-				JTextArea area = new JTextArea();
+				JTextArea area = new JTextArea(1, 30);
 				area.setText(content);
 				editAreas.add(area);
 			}
@@ -318,6 +406,55 @@ public class MainFrame extends JFrame {
 		}
 		editContentPanel.repaint();
 		editPanel.add(editContentPanel, BorderLayout.CENTER);
+		repaint();
+	}
+	
+	private void initInsert() {
+		String sql = String.format("SELECT * FROM %s", ProgramManager.getTable());
+		boolean retry = false;
+		do {
+			try {
+				insertResultSet = insertSqlState.executeQuery(sql);
+				insertResultSet.first();
+			} catch (Exception e) {
+				if(e instanceof CommunicationsException) {
+					connect();
+					retry = true;
+				} else {
+					e.printStackTrace();
+				}
+			}
+		} while(retry);
+		int numColumns = 0;
+		ResultSetMetaData rsmd = null;
+		insertLabels.clear();
+		insertAreas.clear();
+		try {
+			rsmd = insertResultSet.getMetaData();
+			numColumns = rsmd.getColumnCount();
+			insertLabels.clear();
+			insertAreas.clear();
+			for(int currentCol = 1; currentCol < numColumns + 1; currentCol++) {
+				String colLabel = rsmd.getColumnLabel(currentCol);
+				insertLabels.add(new JLabel(colLabel));
+				insertAreas.add(new JTextArea(1, 30));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+		insertContentPanel.setLayout(new GridLayout(numColumns + 1, 1));
+		insertContentPanel.removeAll();
+		insertPanel.remove(insertContentPanel);
+		for(int i = 0; i < numColumns; i++) {
+			JPanel p = new JPanel();
+			p.setLayout(new FlowLayout());
+			p.add(insertLabels.get(i));
+			p.add(insertAreas.get(i));
+			insertContentPanel.add(p);
+		}
+		insertContentPanel.repaint();
+		insertPanel.add(insertContentPanel, BorderLayout.CENTER);
 		repaint();
 	}
 	
