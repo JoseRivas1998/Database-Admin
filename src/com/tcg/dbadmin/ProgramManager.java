@@ -14,6 +14,10 @@ public class ProgramManager {
 	public static int currentTableIndex;
 	
 	static {
+		ProgramManager.reset();
+	}
+	
+	public static void reset() {
 		tables = new String[] {};
 		currentTableIndex = 0;
 	}

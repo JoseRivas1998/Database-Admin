@@ -17,6 +17,7 @@ public class TableSelectFrame extends JFrame {
 	private JLabel label;
 	private JComboBox<String> tcb;
 	private JButton go;
+	private JButton logOut;
 	
 	private JPanel dropDown;
 	
@@ -59,8 +60,16 @@ public class TableSelectFrame extends JFrame {
 			new MainFrame(this);
 		});
 		
-		getContentPane().add(dropDown, BorderLayout.CENTER);
-		getContentPane().add(go, BorderLayout.SOUTH);
+		logOut = new JButton("Log Out");
+		logOut.addActionListener(e -> {
+			ProgramManager.reset();
+			dispose();
+			new LogInFrame();
+		});
+		
+		getContentPane().add(dropDown, BorderLayout.NORTH);
+		getContentPane().add(go, BorderLayout.CENTER);
+		getContentPane().add(logOut, BorderLayout.SOUTH);
 		pack();
 		setTitle(ProgramManager.database + " | Database Admin");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
