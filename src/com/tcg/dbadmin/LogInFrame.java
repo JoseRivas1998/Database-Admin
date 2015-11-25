@@ -73,8 +73,10 @@ public class LogInFrame extends JFrame {
 		
 		cancel = new JButton("Cancel");
 		cancel.addActionListener(e -> {
-			dispose();
-			System.exit(0);
+			if(JOptionPane.showConfirmDialog(this, "Are you sure you want to canel?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				dispose();
+				System.exit(0);
+			}
 		});
 		
 		buttonP = new JPanel();

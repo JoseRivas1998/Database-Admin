@@ -353,7 +353,7 @@ public class MainFrame extends JFrame {
 		sqlFieldPane.setViewportView(sqlField);
 		
 		Dimension preffSize = sqlSubmit.getPreferredSize();
-		sqlSubmit.setPreferredSize(new Dimension(preffSize.width, preffSize.height * 2));
+		sqlSubmit.setPreferredSize(new Dimension(preffSize.width, preffSize.height * 3));
 		
 		sqlAddTable = new JButton("Add Current Table");
 		

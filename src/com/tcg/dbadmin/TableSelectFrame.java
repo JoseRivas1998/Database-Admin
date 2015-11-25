@@ -62,9 +62,11 @@ public class TableSelectFrame extends JFrame {
 		
 		logOut = new JButton("Log Out");
 		logOut.addActionListener(e -> {
-			ProgramManager.reset();
-			dispose();
-			new LogInFrame();
+			if(JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				ProgramManager.reset();
+				dispose();
+				new LogInFrame();
+			}
 		});
 		
 		getContentPane().add(dropDown, BorderLayout.NORTH);
