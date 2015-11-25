@@ -13,7 +13,7 @@ public class LogInFrame extends JFrame {
 	
 	private JPanel hostP, userP, passP, databaseP, formP, buttonP;
 	
-	private JButton logIn, cancel;
+	private JButton logIn, cancel, about;
 	
 	public LogInFrame() {
 		
@@ -79,11 +79,17 @@ public class LogInFrame extends JFrame {
 			}
 		});
 		
+		about = new JButton("About");
+		about.addActionListener(e -> {
+			new AboutFrame(this);
+		});
+		
 		buttonP = new JPanel();
-		buttonP.setLayout(new BorderLayout());
+		buttonP.setLayout(new FlowLayout());
 
-		buttonP.add(logIn, BorderLayout.NORTH);
-		buttonP.add(cancel, BorderLayout.SOUTH);
+		buttonP.add(logIn);
+		buttonP.add(about);
+		buttonP.add(cancel);
 
 		getContentPane().add(formP, BorderLayout.NORTH);
 		getContentPane().add(buttonP, BorderLayout.SOUTH);
