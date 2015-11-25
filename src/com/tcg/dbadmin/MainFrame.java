@@ -49,6 +49,24 @@ public class MainFrame extends JFrame {
 	ArrayList<JTextArea> insertAreas;
 	JButton insertButton;
 	
+	Statement customSqlState;
+	JPanel sqlPanel;
+	JPanel sqlInputButtons;
+	JPanel sqlInput;
+	JTextArea sqlField;
+	JScrollPane sqlFieldPane;
+	JButton sqlAddTable;
+	JButton sqlClear;
+	JButton sqlSelect;
+	JButton sqlSubmit;
+	JScrollPane sqlTableScrollPane;
+	JTable sqlTable;
+	
+	final String[] updateQueries = {
+			"INSERT", "UPDATE", "DELETE",
+			"TRUNCATE", "ALTER"
+	};
+	
 	public MainFrame(JFrame caller) {
 		connect();
 		
@@ -59,9 +77,11 @@ public class MainFrame extends JFrame {
 		initTablePane();
 		initEditPane();
 		initInsertPane();
+		initSqlPane();
 		
 		tabbedView.addTab("Browse", browseScrollPane);
 		tabbedView.addTab("Edit", editPanel);
+		tabbedView.addTab("SQL", sqlPanel);
 		tabbedView.addTab("Insert", insertPanel);
 
 		getContentPane().add(top, BorderLayout.NORTH);
@@ -93,6 +113,7 @@ public class MainFrame extends JFrame {
 			initEdit();
 			insertContentPanel.removeAll();
 			initInsert();
+			sqlField.setText(String.format("SELECT * FROM %s WHERE 1", ProgramManager.getTable()));
 		});
 		
 		top.add(changeTableLabel);
@@ -322,6 +343,92 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	private void initSqlPane() {
+		
+		sqlField = new JTextArea();
+		sqlField.setText(String.format("SELECT * FROM %s WHERE 1", ProgramManager.getTable()));
+		sqlSubmit = new JButton("Submit SQL");
+		sqlFieldPane = new JScrollPane();
+		
+		sqlFieldPane.setViewportView(sqlField);
+		
+		Dimension preffSize = sqlSubmit.getPreferredSize();
+		sqlSubmit.setPreferredSize(new Dimension(preffSize.width, preffSize.height * 2));
+		
+		sqlAddTable = new JButton("Add Current Table");
+		
+		sqlClear = new JButton("Clear");
+		
+		sqlSelect = new JButton("Set to SELECT");
+
+		sqlInputButtons = new JPanel();
+		sqlInputButtons.setLayout(new FlowLayout());
+
+		sqlInputButtons.add(sqlAddTable);
+		sqlInputButtons.add(sqlClear);
+		sqlInputButtons.add(sqlSelect);
+		
+		sqlInput = new JPanel();
+		sqlInput.setLayout(new BorderLayout());
+		
+		sqlInput.add(sqlFieldPane, BorderLayout.CENTER);
+		sqlInput.add(sqlSubmit, BorderLayout.EAST);
+		sqlInput.add(sqlInputButtons, BorderLayout.SOUTH);
+		
+		sqlTable = new JTable();
+		sqlTableScrollPane = new JScrollPane();
+		
+		sqlTableScrollPane.setViewportView(sqlTable);
+		
+		sqlPanel = new JPanel();
+		sqlPanel.setLayout(new BorderLayout());
+		sqlPanel.add(sqlInput, BorderLayout.NORTH);
+		sqlPanel.add(sqlTableScrollPane, BorderLayout.CENTER);
+		
+		sqlSubmit.addActionListener(e -> {
+			boolean retry = false;
+			String sql = sqlField.getText();
+			if(JOptionPane.showConfirmDialog(this, "Submit the following sql?\n" + sql, "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				do {
+					try {
+						customSqlState = sqlCon.createStatement();
+						if(stringArrayContains(updateQueries, firstWord(sql), false)) {
+							customSqlState.executeUpdate(sql);
+							ResultSet set = customSqlState.executeQuery(String.format("SELECT * FROM %s WHERE 1", ProgramManager.getTable()));
+							sqlTable.setModel(DbUtils.resultSetToTableModel(set));
+						} else {
+							ResultSet set = customSqlState.executeQuery(sql);
+							sqlTable.setModel(DbUtils.resultSetToTableModel(set));
+						}
+					} catch (Exception e2) {
+						if(e2 instanceof CommunicationsException) {
+							connect();
+							retry = true;
+						} else {
+							JOptionPane.showMessageDialog(this, e2.getMessage(), e2.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				} while (retry);
+				setTableToDefault();
+				initEdit();
+				initInsert();
+			}
+		});
+		
+		sqlAddTable.addActionListener(e -> {
+			sqlField.append(" " + ProgramManager.getTable());
+		});
+		
+		sqlClear.addActionListener(e -> {
+			sqlField.setText("");
+		});
+		
+		sqlSelect.addActionListener(e -> {
+			sqlField.setText(String.format("SELECT * FROM %s WHERE 1", ProgramManager.getTable()));
+		});
+		
+	}
+
 	private void updateTitle() {
 		setTitle(ProgramManager.host + "/" + ProgramManager.database + ": " + ProgramManager.getTable() + " | Database Admin");
 	}
@@ -350,6 +457,7 @@ public class MainFrame extends JFrame {
 			sqlState = sqlCon.createStatement();
 			editSqlState = sqlCon.createStatement();
 			insertSqlState = sqlCon.createStatement();
+			customSqlState = sqlCon.createStatement();
 		} catch(Exception e){}
 	}
 	
@@ -456,6 +564,29 @@ public class MainFrame extends JFrame {
 		insertContentPanel.repaint();
 		insertPanel.add(insertContentPanel, BorderLayout.CENTER);
 		repaint();
+	}
+	
+	private String firstWord(String text) {
+		if(text.indexOf(' ') > -1) {
+			return text.substring(0, text.indexOf(' '));
+		} else {
+			return text;
+		}
+	}
+	
+	private boolean stringArrayContains(String[] array, String text, boolean caseSensitive) {
+		for(String s : array) {
+			if(caseSensitive) {
+				if(s.equals(text)) {
+					return true;
+				}
+			} else {
+				if(s.equalsIgnoreCase(text)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 }
