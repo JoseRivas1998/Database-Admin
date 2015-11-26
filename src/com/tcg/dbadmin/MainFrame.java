@@ -207,6 +207,7 @@ public class MainFrame extends JFrame {
 				System.out.println(sql);
 				boolean retry = false;
 				do {
+					retry = false;
 					try {
 						editSqlState.executeUpdate(sql);
 						JOptionPane.showMessageDialog(this, "Updated Row", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -243,6 +244,7 @@ public class MainFrame extends JFrame {
 					System.out.println(sql);
 					boolean retry = false;
 					do {
+						retry = false;
 						try {
 							editSqlState.executeUpdate(sql);
 							JOptionPane.showMessageDialog(this, "Deleted Row", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -310,6 +312,7 @@ public class MainFrame extends JFrame {
 			if(JOptionPane.showConfirmDialog(this, String.format("Execute following query: %s?", sql), "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				boolean retry = false;
 				do {
+					retry = false;
 					try {
 						insertSqlState.executeUpdate(sql);
 						JOptionPane.showMessageDialog(this, "Row Inserted", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -390,6 +393,7 @@ public class MainFrame extends JFrame {
 			String sql = sqlField.getText();
 			if(JOptionPane.showConfirmDialog(this, "Submit the following sql?\n" + sql, "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				do {
+					retry = false;
 					try {
 						customSqlState = sqlCon.createStatement();
 						if(stringArrayContains(updateQueries, firstWord(sql), false)) {
@@ -437,6 +441,7 @@ public class MainFrame extends JFrame {
 		String sql = String.format("SELECT * FROM %s", ProgramManager.getTable());
 		boolean retry = false;
 		do {
+			retry = false;
 			try {
 				ResultSet result = sqlState.executeQuery(sql);
 				browseTable.setModel(DbUtils.resultSetToTableModel(result));
@@ -465,6 +470,7 @@ public class MainFrame extends JFrame {
 		String sql = String.format("SELECT * FROM %s", ProgramManager.getTable());
 		boolean retry = false;
 		do {
+			retry = false;
 			try {
 				editResultSet = editSqlState.executeQuery(sql);
 				editResultSet.first();
@@ -521,6 +527,7 @@ public class MainFrame extends JFrame {
 		String sql = String.format("SELECT * FROM %s", ProgramManager.getTable());
 		boolean retry = false;
 		do {
+			retry = false;
 			try {
 				insertResultSet = insertSqlState.executeQuery(sql);
 				insertResultSet.first();
