@@ -11,6 +11,9 @@ Java Swing application that is for MySQL database administrators
 
 ### If you do not have a database, you can use the following log in to test
 Host: tinycountrygames.com
+
 Username: public_tester
+
 Password: tcg246
+
 Database: db_admin_test
