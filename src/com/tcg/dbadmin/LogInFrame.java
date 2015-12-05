@@ -1,8 +1,10 @@
 package com.tcg.dbadmin;
 
 import javax.swing.*;
-
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 public class LogInFrame extends JFrame {
 
 	private static final long serialVersionUID = -2080297185144594144L;
@@ -19,7 +21,7 @@ public class LogInFrame extends JFrame {
 		
 		hostP = new JPanel();
 		hostP.setLayout(new FlowLayout());
-		
+
 		hostTA = new JTextArea(1, 15);
 		hostL = new JLabel("Host:");
 		hostP.add(hostL);
@@ -55,8 +57,8 @@ public class LogInFrame extends JFrame {
 		formP.add(userP);
 		formP.add(passP);
 		formP.add(databaseP);
-		
-		logIn = new JButton("Log In");
+
+        logIn = new JButton("Log In");
 		logIn.addActionListener(e -> {
 			ProgramManager.user = userTA.getText();
 			ProgramManager.host = hostTA.getText();
@@ -97,7 +99,37 @@ public class LogInFrame extends JFrame {
 		pack();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(null);
-		setVisible(true);	
-	}
-	
+		setVisible(true);
+
+        //Add our quick listeners for tabs
+        hostTA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                System.out.println(e.getKeyChar());
+                if(e.getKeyCode() == KeyEvent.VK_TAB){
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+                }
+            }
+        });
+
+        userTA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_TAB){
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+                    e.consume();
+                }
+            }
+        });
+
+        databaseTA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_TAB){
+                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+                    e.consume();
+                }
+            }
+        });
+    }
 }
