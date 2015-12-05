@@ -1,14 +1,12 @@
 package com.tcg.dbadmin;
 
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
+import net.proteanit.sql.DbUtils;
+
+import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
-
-import javax.swing.*;
-
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-
-import net.proteanit.sql.DbUtils;
 
 public class MainFrame extends JFrame {
 

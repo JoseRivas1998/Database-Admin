@@ -44,5 +44,4 @@ public class ProgramManager {
 	public static String getTable(int index) {
 		return tables[index];
 	}
-	
 }
