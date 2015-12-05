@@ -3,6 +3,8 @@ package com.tcg.dbadmin;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import javax.swing.JOptionPane;
+
 public class ProgramManager {
 
 	public static final double version = 1.1;
@@ -28,6 +30,7 @@ public class ProgramManager {
 		try {
 			sqlCon = DriverManager.getConnection("jdbc:mysql://"+ host +"/" + database, user, password);
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e.getMessage(), e.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 			sqlCon = null;
 		}
 		return sqlCon;

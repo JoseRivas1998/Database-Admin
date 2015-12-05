@@ -2,10 +2,9 @@ package com.tcg.dbadmin;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
-public class LogInFrame extends JFrame {
+public class LogInFrame extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -2080297185144594144L;
 	
@@ -60,17 +59,7 @@ public class LogInFrame extends JFrame {
 
         logIn = new JButton("Log In");
 		logIn.addActionListener(e -> {
-			ProgramManager.user = userTA.getText();
-			ProgramManager.host = hostTA.getText();
-			ProgramManager.password = String.valueOf(passField.getPassword());
-			ProgramManager.database = databaseTA.getText();
-			if(ProgramManager.getConnection() != null) {
-				JOptionPane.showMessageDialog(this, "Database Connected Successfully", "Conntected", JOptionPane.INFORMATION_MESSAGE);
-				new TableSelectFrame(this);
-				dispose();
-			} else {
-				JOptionPane.showMessageDialog(this, "Unable to log in", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			logIn();
 		});
 		
 		cancel = new JButton("Cancel");
@@ -101,35 +90,41 @@ public class LogInFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 
-        //Add our quick listeners for tabs
-        hostTA.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                System.out.println(e.getKeyChar());
-                if(e.getKeyCode() == KeyEvent.VK_TAB){
-                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-                }
-            }
-        });
+        //Add our quick listeners for tabs and enters
+        hostTA.addKeyListener(this);
 
-        userTA.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_TAB){
-                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-                    e.consume();
-                }
-            }
-        });
+        userTA.addKeyListener(this);
 
-        databaseTA.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_TAB){
-                    KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-                    e.consume();
-                }
-            }
-        });
+        databaseTA.addKeyListener(this);
     }
+
+	private void logIn() {
+		ProgramManager.user = userTA.getText();
+		ProgramManager.host = hostTA.getText();
+		ProgramManager.password = String.valueOf(passField.getPassword());
+		ProgramManager.database = databaseTA.getText();
+		if(ProgramManager.getConnection() != null) {
+			JOptionPane.showMessageDialog(this, "Database Connected Successfully", "Conntected", JOptionPane.INFORMATION_MESSAGE);
+			new TableSelectFrame(this);
+			dispose();
+		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_TAB){
+	        KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+	        e.consume();
+	    }
+	    if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+	    	logIn();
+	    	e.consume();
+	    }
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {}
 }
