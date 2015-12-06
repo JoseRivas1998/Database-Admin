@@ -76,9 +76,9 @@ public class TableSelectFrame extends JFrame {
 
         buttons.add(go);
         buttons.add(logOut);
-        
-        getContentPane().add(go, BorderLayout.CENTER);
-        getContentPane().add(logOut, BorderLayout.SOUTH);
+
+        getContentPane().add(dropDown, BorderLayout.CENTER);
+        getContentPane().add(buttons, BorderLayout.SOUTH);
         pack();
         setTitle(ProgramManager.database + " | Database Admin");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
