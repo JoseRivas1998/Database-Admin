@@ -22,15 +22,11 @@ public class UserManager {
             folder.mkdirs();
         }
         for(File entry : folder.listFiles()){
-            try {
-            	FileInputStream fileIn = new FileInputStream(entry);
-            	ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-            	users.add((User) objectIn.readObject());
-            	fileIn.close();
-            	objectIn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        	try {
+				users.add(User.load(entry));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
     }
 

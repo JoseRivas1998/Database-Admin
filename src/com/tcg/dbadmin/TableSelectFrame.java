@@ -32,7 +32,6 @@ public class TableSelectFrame extends JFrame {
         try {
             DatabaseMetaData meta = sqlCon.getMetaData();
             ResultSet res = meta.getTables(null, null, null, new String[]{});
-            System.out.println("List of tables: ");
             while (res.next()) {
                 tableList.add(res.getString("TABLE_NAME"));
             }

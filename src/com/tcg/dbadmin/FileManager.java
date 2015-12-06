@@ -28,16 +28,10 @@ public class FileManager {
 
     public void saveData(String host, String name, String password, String database){
         User userProfile = new User(host, name, password, database);
-        ObjectOutputStream objectOutputStream;
-        OutputStream outputStream;
         try {
-            outputStream = new FileOutputStream(userFile);
-            objectOutputStream = new ObjectOutputStream (outputStream);
-            objectOutputStream.writeObject(userProfile);
-            outputStream.close();
-            objectOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+			User.save(userProfile, userFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 }
