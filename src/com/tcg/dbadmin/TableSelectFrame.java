@@ -21,7 +21,7 @@ public class TableSelectFrame extends JFrame {
     private JButton go;
     private JButton logOut;
 
-    private JPanel dropDown;
+    private JPanel dropDown, buttons;
 
     public TableSelectFrame(JFrame caller) {
 
@@ -57,6 +57,8 @@ public class TableSelectFrame extends JFrame {
         dropDown.add(label);
         dropDown.add(tcb);
 
+        buttons = new JPanel(new FlowLayout());
+
         go = new JButton("Go");
         go.addActionListener(e -> {
             ProgramManager.currentTableIndex = tcb.getSelectedIndex();
@@ -72,7 +74,9 @@ public class TableSelectFrame extends JFrame {
             }
         });
 
-        getContentPane().add(dropDown, BorderLayout.NORTH);
+        buttons.add(go);
+        buttons.add(logOut);
+        
         getContentPane().add(go, BorderLayout.CENTER);
         getContentPane().add(logOut, BorderLayout.SOUTH);
         pack();

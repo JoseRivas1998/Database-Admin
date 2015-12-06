@@ -136,6 +136,8 @@ public class LogInFrame extends JFrame implements KeyListener {
 
         userTA.addKeyListener(this);
 
+        passField.addKeyListener(this);
+
         databaseTA.addKeyListener(this);
     }
 
