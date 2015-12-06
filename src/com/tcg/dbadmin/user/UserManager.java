@@ -21,6 +21,9 @@ public class UserManager {
 
     public void loadProfiles(){
         File folder = new File(System.getProperty("user.home") + File.separator + "AppData" + File.separator + "Local" + File.separator + "DBAdmin");
+        if(!folder.exists()){
+            folder.mkdirs();
+        }
         for(File entry : folder.listFiles()){
             try {
                 List<String> lines = Files.readAllLines(entry.toPath(), StandardCharsets.UTF_8);
