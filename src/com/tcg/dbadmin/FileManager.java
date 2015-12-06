@@ -19,8 +19,6 @@ public class FileManager {
         if(!userFile.exists()){
             try {
                 userFile.createNewFile();
-                System.out.println("Files created!");
-                System.out.println("Path: " + userFile.getPath());
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(LogInFrame.getInstance(), "Could not save user data!", "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
@@ -30,14 +28,14 @@ public class FileManager {
 
     public void saveData(String host, String name, String password, String database){
         User userProfile = new User(host, name, password, database);
-        DataOutputStream dataOutputStream;
+        ObjectOutputStream objectOutputStream;
         OutputStream outputStream;
         try {
             outputStream = new FileOutputStream(userFile);
-            dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeBytes(userProfile.sterilize());
+            objectOutputStream = new ObjectOutputStream (outputStream);
+            objectOutputStream.writeObject(userProfile);
             outputStream.close();
-            dataOutputStream.close();
+            objectOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

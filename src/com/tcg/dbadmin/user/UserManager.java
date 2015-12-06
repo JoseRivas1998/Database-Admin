@@ -1,9 +1,6 @@
 package com.tcg.dbadmin.user;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,19 +23,12 @@ public class UserManager {
         }
         for(File entry : folder.listFiles()){
             try {
-                List<String> lines = Files.readAllLines(entry.toPath(), StandardCharsets.UTF_8);
-                String line = lines.toString();
-                line = line.replace("[", "");
-                line = line.replace("]", "");
-                String[] array = line.split(";");
-                String host = array[0];
-                String name = array[1];
-                String password = array[2];
-                String database = array[3];
-                User user = new User(host, name, password, database);
-                users.add(user);
-                System.out.println(users.toString());
-            } catch (IOException e) {
+            	FileInputStream fileIn = new FileInputStream(entry);
+            	ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            	users.add((User) objectIn.readObject());
+            	fileIn.close();
+            	objectIn.close();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

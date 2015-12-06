@@ -46,9 +46,4 @@ public class ProgramManager {
     public static String getTable(int index) {
         return tables[index];
     }
-
-    private void saveUser(){
-        FileManager fileManager = new FileManager(user, database);
-        fileManager.saveData(host, user, password, database);
-    }
 }

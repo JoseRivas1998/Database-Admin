@@ -25,7 +25,7 @@ public class LogInFrame extends JFrame implements KeyListener {
 
     private JButton logIn, cancel, about;
 
-    private JComboBox profiles;
+    private JComboBox<String> profiles;
 
     public LogInFrame() {
 
@@ -68,7 +68,7 @@ public class LogInFrame extends JFrame implements KeyListener {
         profileP = new JPanel();
         profileP.setLayout(new FlowLayout());
 
-        profiles = new JComboBox();
+        profiles = new JComboBox<String>();
         profileL = new JLabel("Profile:");
         profileP.add(profileL);
         profileP.add(profiles);
@@ -77,7 +77,7 @@ public class LogInFrame extends JFrame implements KeyListener {
 
         List<User> users = userManager.getUsers();
         for(User user : users){
-            profiles.addItem(user.name + " - " + user.database + " - " + user.host);
+            profiles.addItem(String.format("%s: %s@%s", user.getDatabase(), user.getName(), user.getHost()));
         }
 
         profiles.addActionListener(e -> {
@@ -86,8 +86,10 @@ public class LogInFrame extends JFrame implements KeyListener {
                 return;
             }
             User user = users.get(profiles.getSelectedIndex() - 1);
-            System.out.println(user.name + " - " + user.database);
-            logIn(user.host, user.name, user.password, user.database);
+            hostTA.setText(user.getHost());
+            userTA.setText(user.getName());
+            passField.setText(user.getPassword());
+            databaseTA.setText(user.getDatabase());
         });
 
         formP = new JPanel();
