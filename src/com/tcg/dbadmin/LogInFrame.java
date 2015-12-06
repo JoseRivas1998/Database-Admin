@@ -1,132 +1,183 @@
 package com.tcg.dbadmin;
 
+import com.tcg.dbadmin.user.User;
+import com.tcg.dbadmin.user.UserManager;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.List;
 
 public class LogInFrame extends JFrame implements KeyListener {
 
-	private static final long serialVersionUID = -2080297185144594144L;
-	
-	private JTextArea hostTA, userTA, databaseTA;
-	private JPasswordField passField;
-	private JLabel hostL, userL, passL, databaseL;
-	
-	private JPanel hostP, userP, passP, databaseP, formP, buttonP;
-	
-	private JButton logIn, cancel, about;
-	
-	public LogInFrame() {
-		
-		hostP = new JPanel();
-		hostP.setLayout(new FlowLayout());
+    private static final long serialVersionUID = -2080297185144594144L;
 
-		hostTA = new JTextArea(1, 15);
-		hostL = new JLabel("Host:");
-		hostP.add(hostL);
-		hostP.add(hostTA);
+    private static LogInFrame instance;
 
-		userP = new JPanel();
-		userP.setLayout(new FlowLayout());
-		
-		userTA = new JTextArea(1, 15);
-		userL = new JLabel("User:");
-		userP.add(userL);
-		userP.add(userTA);
+    private UserManager userManager;
 
-		passP = new JPanel();
-		passP.setLayout(new FlowLayout());
-		
-		passField = new JPasswordField(15);
-		passL = new JLabel("Password:");
-		passP.add(passL);
-		passP.add(passField);
+    private JTextArea hostTA, userTA, databaseTA;
+    private JPasswordField passField;
+    private JLabel hostL, userL, passL, databaseL, profileL;
 
-		databaseP = new JPanel();
-		databaseP.setLayout(new FlowLayout());
-		
-		databaseTA = new JTextArea(1, 15);
-		databaseL = new JLabel("Database:");
-		databaseP.add(databaseL);
-		databaseP.add(databaseTA);
-		
-		formP = new JPanel();
-		formP.setLayout(new GridLayout(4, 1));
-		formP.add(hostP);
-		formP.add(userP);
-		formP.add(passP);
-		formP.add(databaseP);
+    private JPanel hostP, userP, passP, databaseP, formP, buttonP, profileP;
+
+    private JButton logIn, cancel, about;
+
+    private JComboBox profiles;
+
+    public LogInFrame() {
+
+        instance = this;
+
+        userManager = new UserManager();
+
+        hostP = new JPanel();
+        hostP.setLayout(new FlowLayout());
+
+        hostTA = new JTextArea(1, 15);
+        hostL = new JLabel("Host:");
+        hostP.add(hostL);
+        hostP.add(hostTA);
+
+        userP = new JPanel();
+        userP.setLayout(new FlowLayout());
+
+        userTA = new JTextArea(1, 15);
+        userL = new JLabel("User:");
+        userP.add(userL);
+        userP.add(userTA);
+
+        passP = new JPanel();
+        passP.setLayout(new FlowLayout());
+
+        passField = new JPasswordField(15);
+        passL = new JLabel("Password:");
+        passP.add(passL);
+        passP.add(passField);
+
+        databaseP = new JPanel();
+        databaseP.setLayout(new FlowLayout());
+
+        databaseTA = new JTextArea(1, 15);
+        databaseL = new JLabel("Database:");
+        databaseP.add(databaseL);
+        databaseP.add(databaseTA);
+
+        profileP = new JPanel();
+        profileP.setLayout(new FlowLayout());
+
+        profiles = new JComboBox();
+        profileL = new JLabel("Profile:");
+        profileP.add(profileL);
+        profileP.add(profiles);
+
+        profiles.addItem("Select a profile");
+
+        List<User> users = userManager.getUsers();
+        for(User user : users){
+            profiles.addItem(user.name + " - " + user.database + " - " + user.host);
+        }
+
+        profiles.addActionListener(e -> {
+            if(profiles.getSelectedIndex() == 0){
+                //Do nothing
+                return;
+            }
+            User user = users.get(profiles.getSelectedIndex() - 1);
+            System.out.println(user.name + " - " + user.database);
+            logIn(user.host, user.name, user.password, user.database);
+        });
+
+        formP = new JPanel();
+        formP.setLayout(new GridLayout(5, 1));
+        formP.add(hostP);
+        formP.add(userP);
+        formP.add(passP);
+        formP.add(databaseP);
+        formP.add(profileP);
 
         logIn = new JButton("Log In");
-		logIn.addActionListener(e -> {
-			logIn();
-		});
-		
-		cancel = new JButton("Cancel");
-		cancel.addActionListener(e -> {
-			if(JOptionPane.showConfirmDialog(this, "Are you sure you want to canel?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				dispose();
-				System.exit(0);
-			}
-		});
-		
-		about = new JButton("About");
-		about.addActionListener(e -> {
-			new AboutFrame(this);
-		});
-		
-		buttonP = new JPanel();
-		buttonP.setLayout(new FlowLayout());
+        logIn.addActionListener(e -> {
+            logIn(hostTA.getText(), userTA.getText(), String.valueOf(passField.getPassword()), databaseTA.getText());
+        });
 
-		buttonP.add(logIn);
-		buttonP.add(about);
-		buttonP.add(cancel);
+        cancel = new JButton("Cancel");
+        cancel.addActionListener(e -> {
+            if (JOptionPane.showConfirmDialog(this, "Are you sure you want to canel?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                dispose();
+                System.exit(0);
+            }
+        });
 
-		getContentPane().add(formP, BorderLayout.NORTH);
-		getContentPane().add(buttonP, BorderLayout.SOUTH);
-		setTitle("Log In | Database Admin");
-		pack();
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setLocationRelativeTo(null);
-		setVisible(true);
+        about = new JButton("About");
+        about.addActionListener(e -> {
+            new AboutFrame(this);
+        });
+
+        buttonP = new JPanel();
+        buttonP.setLayout(new FlowLayout());
+
+        buttonP.add(logIn);
+        buttonP.add(about);
+        buttonP.add(cancel);
+
+        getContentPane().add(formP, BorderLayout.NORTH);
+        getContentPane().add(buttonP, BorderLayout.SOUTH);
+        setTitle("Log In | Database Admin");
+        pack();
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
 
         //Add our quick listeners for tabs and enters
         hostTA.addKeyListener(this);
 
         userTA.addKeyListener(this);
-        
+
         passField.addKeyListener(this);
 
         databaseTA.addKeyListener(this);
     }
 
-	private void logIn() {
-		ProgramManager.user = userTA.getText();
-		ProgramManager.host = hostTA.getText();
-		ProgramManager.password = String.valueOf(passField.getPassword());
-		ProgramManager.database = databaseTA.getText();
-		if(ProgramManager.getConnection() != null) {
-			JOptionPane.showMessageDialog(this, "Database Connected Successfully", "Conntected", JOptionPane.INFORMATION_MESSAGE);
-			new TableSelectFrame(this);
-			dispose();
-		}
-	}
+    private void logIn(String host, String user, String password, String database) {
+        ProgramManager.host = host;
+        ProgramManager.user = user;
+        ProgramManager.password = password;
+        ProgramManager.database = database;
+        if (ProgramManager.getConnection() != null) {
+            JOptionPane.showMessageDialog(this, "Database Connected Successfully", "Connected", JOptionPane.INFORMATION_MESSAGE);
+            new TableSelectFrame(this);
+            dispose();
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_TAB){
-	        KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-	        e.consume();
-	    }
-	    if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-	    	logIn();
-	    	e.consume();
-	    }
-	}
+            FileManager fileManager = new FileManager(user, database);
+            fileManager.saveData(host, user, password, database);
+        }
+    }
 
-	@Override
-	public void keyReleased(KeyEvent arg0) {}
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_TAB) {
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+            e.consume();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            logIn(hostTA.getText(), userTA.getText(), String.valueOf(passField.getPassword()), databaseTA.getText());
+            e.consume();
+        }
+    }
 
-	@Override
-	public void keyTyped(KeyEvent arg0) {}
+    @Override
+    public void keyReleased(KeyEvent arg0) {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent arg0) {
+    }
+
+
+    public static LogInFrame getInstance(){
+        return instance;
+    }
 }
