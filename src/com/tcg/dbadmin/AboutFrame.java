@@ -23,7 +23,7 @@ public class AboutFrame extends JFrame {
 
         addLabel("Database Admin");
         addLabel("Author:");
-        addLabel("Josï¿½ Rodriguez-Rivas");
+        addLabel("José Rodriguez-Rivas");
         addLabel("Cuurent Version:");
         addLabel(String.valueOf(ProgramManager.version));
 

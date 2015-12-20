@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 
 public class ProgramManager {
 
-    public static final double version = 1.1;
+    public static final double version = 1.3;
 
     public static String host;
     public static String user;
