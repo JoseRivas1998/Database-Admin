@@ -5,10 +5,12 @@ import net.proteanit.sql.DbUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements KeyListener {
 
     private static final long serialVersionUID = 8787371079352707195L;
 
@@ -501,6 +503,7 @@ public class MainFrame extends JFrame {
                 editLabels.add(new JLabel(colLabel));
                 JTextArea area = new JTextArea(1, 30);
                 area.setText(content);
+                area.addKeyListener(this);
                 editAreas.add(area);
             }
         } catch (SQLException e) {
@@ -551,7 +554,9 @@ public class MainFrame extends JFrame {
             for (int currentCol = 1; currentCol < numColumns + 1; currentCol++) {
                 String colLabel = rsmd.getColumnLabel(currentCol);
                 insertLabels.add(new JLabel(colLabel));
-                insertAreas.add(new JTextArea(1, 30));
+                JTextArea area = new JTextArea(1, 30);
+                area.addKeyListener(this);
+                insertAreas.add(area);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -594,5 +599,19 @@ public class MainFrame extends JFrame {
         }
         return false;
     }
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_TAB) {
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+            e.consume();
+        }
+    }
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
 
 }
